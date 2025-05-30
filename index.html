@@ -1,106 +1,125 @@
 <!doctype html>
-<html lang="en"> 
- <head> 
-  <meta charset="UTF-8"> 
-  <title>TNX Injector</title> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TNX Injector</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Courier New', monospace;
-      background: black;
-      color: #00ff00;
-      overflow: hidden;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: white;
     }
+
     canvas {
       position: fixed;
       top: 0;
       left: 0;
       z-index: -1;
     }
-    .container {
-      position: relative;
-      z-index: 10;
+
+    .login-box, .injector-container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+      width: 320px;
       text-align: center;
-      padding-top: 50px;
+      display: none;
     }
-    h1 {
-      font-size: 40px;
-      border: 3px solid #00ff00;
-      padding: 15px 30px;
-      display: inline-block;
-      border-radius: 12px;
+
+    .login-box.active, .injector-container.active {
+      display: block;
+    }
+
+    h1, h2 {
       margin-bottom: 30px;
-      text-shadow: 0 0 10px #00ff00;
+      font-size: 28px;
+      color: #00ffe7;
     }
+
     input {
+      width: 100%;
       padding: 12px;
-      width: 240px;
-      border: 2px solid #00ff00;
-      border-radius: 6px;
-      background: black;
-      color: #00ff00;
-      font-size: 16px;
-    }
-    button {
-      margin-top: 15px;
-      padding: 12px 24px;
-      font-weight: bold;
-      font-size: 16px;
-      background: #00ff00;
-      color: black;
+      margin: 10px 0;
+      background: #2c3e50;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #00ff00;
-    }
-    .output {
-      margin-top: 30px;
-      padding: 20px;
-      border: 2px solid #00ff00;
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0.7);
+      border-radius: 8px;
+      color: white;
       font-size: 16px;
-      min-height: 100px;
-      box-shadow: 0 0 15px #00ff00 inset;
     }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00ffe7;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #000;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .output {
+      margin-top: 20px;
+      padding: 10px;
+      background: #000000a0;
+      border-radius: 8px;
+      border: 1px solid #00ffe7;
+      font-size: 14px;
+      color: #00ffe7;
+    }
+
+    .tracker {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #aaa;
+    }
+
     .spinner {
       display: inline-block;
       animation: spin 1s linear infinite;
-      font-size: 32px;
+      font-size: 18px;
     }
+
     @keyframes spin {
       0% { transform: rotate(0); }
       100% { transform: rotate(360deg); }
     }
-    .tracker {
-      margin-top: 30px;
-      font-size: 14px;
-      color: #aaa;
-    }
-  </style> 
- </head> 
- <body> 
-  <canvas id="matrix"></canvas> 
-  <div class="container"> 
-   <h1>*** TNX INJECTOR ***</h1> 
-   <br>
-   <br> 
-   <input type="text" id="uid" placeholder="Enter your UID">
-   <br>
-   <br> 
-   <input type="password" id="pass" placeholder="Enter your Password">
-   <br>
-   <br> 
-   <input type="text" id="region" placeholder="Enter Region/Server">
-   <br> <button onclick="inject()">Inject Now</button> 
-   <div class="output" id="output">
-    Awaiting UID...
-   </div> 
-   <div class="tracker" id="tracker"></div> 
-  </div> 
-  <script>
-  // MATRIX RAIN BACKGROUND
+  </style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="login-box active" id="loginBox">
+  <h2>TNX Injector Login</h2>
+  <input id="username" type="text" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <div class="footer">© 2025 TNX Injector. All rights reserved.</div>
+</div>
+
+<div class="injector-container" id="injectorBox">
+  <h2>*** TNX INJECTOR ***</h2>
+  <input type="text" id="uid" placeholder="Enter your UID">
+  <input type="password" id="pass" placeholder="Enter your Password">
+  <input type="text" id="region" placeholder="Enter Region/Server">
+  <button onclick="inject()">Inject Now</button>
+  <div class="output" id="output">Awaiting UID...</div>
+  <div class="tracker" id="tracker"></div>
+</div>
+
+<script>
+  // Matrix background effect
   const canvas = document.getElementById('matrix');
   const ctx = canvas.getContext('2d');
   canvas.height = window.innerHeight;
@@ -126,7 +145,19 @@
   }
   setInterval(draw, 35);
 
-  // INJECTOR LOGIC
+  // Login logic
+  function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if (username === 'admin' && password === '1234') {
+      document.getElementById('loginBox').classList.remove('active');
+      document.getElementById('injectorBox').classList.add('active');
+    } else {
+      alert('❌ Invalid username or password!');
+    }
+  }
+
+  // Injector logic
   function inject() {
     const uid = document.getElementById('uid').value.trim();
     const output = document.getElementById('output');
@@ -169,12 +200,12 @@
     setTimeout(runNextStep, 700);
   }
 
-  // VISIT TRACKER (localStorage based)
+  // Visit tracker
   const visitKey = 'tnx_injector_visits';
   let visits = localStorage.getItem(visitKey);
   visits = visits ? parseInt(visits) + 1 : 1;
   localStorage.setItem(visitKey, visits);
   document.getElementById('tracker').textContent = `👁 Visits to this injector: ${visits}`;
-</script> 
- 
-</body></html>
+</script>
+</body>
+</html>
